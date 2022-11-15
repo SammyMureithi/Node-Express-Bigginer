@@ -1,9 +1,21 @@
-const express = require( 'express' )
+const Joi = require( 'joi' );
+const express = require( 'express' );
+const config=require('Config')
+const log = require( './Logger' );
 const app = express();
+const home=require("./routes/PugRoute")
 app.use( express.json() );
-app.get( '/', ( req, res ) => {
-    res.send( 'Hellow world' )
-} );
+app.set( 'view engine', 'pug' );
+app.set('views',"./Views")
+app.use(function( req, res, next )  {
+    console.log( 'Loading...' );
+    next();
+})
+app.use( log );
+app.use('/',home)
+console.log( "App Name: " + config.get( 'name' ) );
+console.log( "App Host: " + config.get( 'mail.host' ) );
+console.log( "App Password: " + config.get( 'mail.host' ) );
 const port = process.env.PORT || 3000;
 const courses = [{ id: 1, name: "Javascript" }, { id: 2, name: "Java" }, { id: 3, name: "Kotlin" },
 { id: 4, name: "Flutter" }, { id: 5, name: "React Native" }, { id: 6, name: "React Js" }]
@@ -33,6 +45,11 @@ app.get( '/api/course/:id', ( req, res ) => {
 } )
 //let's try adding a new course
 app.post( '/api/addCourse', ( req, res ) => {
+    const schema = {
+        name:Joi.string().min(3).required()
+    }
+   // let result = Joi.validate(req.body, schema );
+    //console.log( result );
     if ( !req.body.name || req.body.name.length < 3 ) {
         res.status(404).send('Not successful')
     }
